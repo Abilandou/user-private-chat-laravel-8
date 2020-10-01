@@ -2017,18 +2017,17 @@ __webpack_require__.r(__webpack_exports__);
           message: this.message,
           user_id: this.userMessage.user.id
         }).then(function (response) {
-          // console.log(response.data);
+          //Reload user messages
           _this.selectUser(_this.userMessage.user.id);
         });
-        this.message = ''; // .catch(error => {
-        //     console.log(`The Error: ${error.message} While posting message to database`);
-        // })
+        this.message = '';
       }
     },
     deleteSingleMessage: function deleteSingleMessage(messageId) {
       var _this2 = this;
 
       axios__WEBPACK_IMPORTED_MODULE_0___default.a.get("deletemessage/".concat(messageId)).then(function (response) {
+        //Reload user messages
         _this2.selectUser(_this2.userMessage.user.id);
 
         console.log(response.data);
