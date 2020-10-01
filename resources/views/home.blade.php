@@ -255,7 +255,7 @@
         <button type="submit" class="btn btn-primary">Logout</button>
     </form>
 </div>
-<div id="app" >
+<div id="app" class="container-fluid" >
     <main-app></main-app>
 </div>
 

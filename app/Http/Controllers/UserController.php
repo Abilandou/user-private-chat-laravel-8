@@ -28,12 +28,7 @@ class UserController extends Controller
         
     }
 
-    public function getMessages(Request $request, $id)
-    {
-        
-        //Get the selected user to chat with
-        $user = User::findOrFail($id);
-        
+    public function messageByUser($id){
         $messages = Message::where(function($q) use ($id) {
             $q->where('from',Auth::id());
             $q->where('to', $id);
@@ -41,6 +36,15 @@ class UserController extends Controller
             $q->where('from',$id);
             $q->where('to', Auth::id());
         })->with('user')->get();
+
+        return $messages;
+    }
+
+    public function getMessages(Request $request, $id)
+    {
+        //Get the selected user to chat with
+        $user = User::findOrFail($id);
+        $messages = $this->messageByUser($id);
 
         if($request->ajax())
         {
@@ -55,22 +59,41 @@ class UserController extends Controller
 
     public function sendMessage(Request $request)
     {
-        // $message = new Message();
-        // $message->message = $request->message;
-        // $message->from = Auth::id();
-        // $message->to = $request->user_id;
-        // $message->save();
-
-        $messages = Message::create([
-            'message' => $request->message,
-            'from' => Auth::id(),
-            'to' => $request->user_id,
-        ]);
-        // if($message){
+        if ($request->ajax()) {
+            $messages = Message::create([
+                'message' => $request->message,
+                'from' => Auth::id(),
+                'to' => $request->user_id,
+            ]);
             return response()->json($messages);
-        // }else {
-        //     return response()->json('error');
-        // }
+        }else{
+            abort(404);
+        }
     }
+
+    public function deleteMessage( Request $request, $id) {
+        
+        if($request->ajax()){
+            Message::findOrFail($id)->delete();
+            return response()->json('Deleted');
+        }else {
+            abort(404);
+        }
+      
+    }
+
+
+    public function deleteAllMessage($id) 
+    {
+        
+       $messages =  $this->messageByUser($id);
+       foreach($messages as $msg){
+           Message::findOrFail($msg->id)->delete();
+       }
+       return response()->json('all messages deleted');
+      
+    }
+
+   
 
 }

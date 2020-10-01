@@ -24,3 +24,5 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::get('/userlist', [App\Http\Controllers\UserController::class, 'index'])->name('users');
 Route::get('/usermessage/{id}', [App\Http\Controllers\UserController::class, 'getMessages'])->name('user.messages');
 Route::post('/sendmessage', [App\Http\Controllers\UserController::class, 'sendMessage'])->name('user.send.message');
+Route::get('/deletemessage/{id}', [App\Http\Controllers\UserController::class, 'deleteMessage'])->name('user.delete.message');
+Route::get('/deleteallmessage/{id}', [App\Http\Controllers\UserController::class, 'deleteAllMessage'])->name('user.delete.allmessage');

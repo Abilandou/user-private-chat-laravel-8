@@ -1976,6 +1976,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
@@ -2016,6 +2024,24 @@ __webpack_require__.r(__webpack_exports__);
         //     console.log(`The Error: ${error.message} While posting message to database`);
         // })
       }
+    },
+    deleteSingleMessage: function deleteSingleMessage(messageId) {
+      var _this2 = this;
+
+      axios__WEBPACK_IMPORTED_MODULE_0___default.a.get("deletemessage/".concat(messageId)).then(function (response) {
+        _this2.selectUser(_this2.userMessage.user.id);
+
+        console.log(response.data);
+      });
+    },
+    deleteAllMessage: function deleteAllMessage() {
+      var _this3 = this;
+
+      axios__WEBPACK_IMPORTED_MODULE_0___default.a.get("deleteallmessage/".concat(this.userMessage.user.id)).then(function (response) {
+        _this3.selectUser(_this3.userMessage.user.id);
+
+        console.log(response.data);
+      });
     }
   }
 });
@@ -6479,7 +6505,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.my-message {\n    background: #86BB71;\n}\n.my-message:after {\n    border-bottom-color:#86BB71;\n    left: 10%;\n}\n", ""]);
+exports.push([module.i, "\n.my-message {\n    background: #ff4089;\n}\n.my-message:after {\n    border-bottom-color: #ff4089;\n    left: 10%;\n}\n.other-message {\n    background-color: rgb(231, 225, 225);\n    color: black !important;\n}\n.other-message:after {\n    border-bottom-color: rgb(231, 225, 225);\n    left: 90%;\n}\n.d-flex-column {\n    display: flex;\n    flex-direction: column;\n}\n.d-flex-space {\n    display: flex;\n    justify-content: space-between;\n}\n", ""]);
 
 // exports
 
@@ -59946,7 +59972,7 @@ var render = function() {
     ]),
     _vm._v(" "),
     _c("div", { staticClass: "chat" }, [
-      _c("div", { staticClass: "chat-header clearfix" }, [
+      _c("div", { staticClass: "chat-header clearfix " }, [
         _c("img", {
           staticStyle: {
             "border-radius": "50%",
@@ -59963,8 +59989,36 @@ var render = function() {
               ])
             : _vm._e(),
           _vm._v(" "),
-          _c("div", { staticClass: "chat-num-messages" }, [
-            _vm._v("already 1 902 messages")
+          _vm._m(2)
+        ]),
+        _vm._v(" "),
+        _c("div", [
+          _c("div", { staticClass: "dropdown show" }, [
+            _vm._m(3),
+            _vm._v(" "),
+            _c(
+              "div",
+              {
+                staticClass: "dropdown-menu",
+                attrs: { "aria-labelledby": "dropdownMenuLink" }
+              },
+              [
+                _c(
+                  "a",
+                  {
+                    staticClass: "dropdown-item",
+                    attrs: { href: "#" },
+                    on: {
+                      click: function($event) {
+                        $event.preventDefault()
+                        return _vm.deleteAllMessage($event)
+                      }
+                    }
+                  },
+                  [_vm._v("Delete all")]
+                )
+              ]
+            )
           ])
         ]),
         _vm._v(" "),
@@ -59982,37 +60036,52 @@ var render = function() {
             "ul",
             { staticClass: "list-unstyled" },
             _vm._l(_vm.userMessage.messages, function(message) {
-              return _c("li", { key: message.id, staticClass: "clearfix" }, [
-                _c("div", { staticClass: "message-data align-right" }, [
-                  _c("span", { staticClass: "message-data-time" }, [
-                    _vm._v("Time here")
-                  ]),
-                  _vm._v("    \n                "),
-                  _c("span", { staticClass: "message-data-name" }, [
-                    _vm._v(_vm._s(message.user.name) + " ")
+              return _c(
+                "li",
+                { key: message.id, staticClass: "clearfix d-flex-column" },
+                [
+                  _c("div", { staticClass: "message-data align-right" }, [
+                    _c("span", { staticClass: "message-data-time" }, [
+                      _vm._v("Time here")
+                    ]),
+                    _vm._v("    \n                    "),
+                    _c("span", { staticClass: "message-data-name" }, [
+                      _vm._v(_vm._s(message.user.name) + " ")
+                    ]),
+                    _vm._v(" "),
+                    _c("i", { staticClass: "fa fa-circle me" })
                   ]),
                   _vm._v(" "),
-                  _c("i", { staticClass: "fa fa-circle me" })
-                ]),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  {
-                    class:
-                      "message other-message float-right " +
-                      (message.user.id == _vm.userMessage.user.id
-                        ? "other-message"
-                        : "my-message")
-                  },
-                  [
-                    _vm._v(
-                      "\n                    " +
-                        _vm._s(message.message) +
-                        "\n                "
-                    )
-                  ]
-                )
-              ])
+                  _c(
+                    "div",
+                    {
+                      class:
+                        "message d-flex-space float-right " +
+                        (message.user.id == _vm.userMessage.user.id
+                          ? "other-message"
+                          : "my-message")
+                    },
+                    [
+                      _c("span", [_vm._v(_vm._s(message.message))]),
+                      _vm._v(" "),
+                      _c(
+                        "a",
+                        {
+                          staticClass: "text-success",
+                          attrs: { href: "#" },
+                          on: {
+                            click: function($event) {
+                              $event.preventDefault()
+                              return _vm.deleteSingleMessage(message.id)
+                            }
+                          }
+                        },
+                        [_c("i", { staticClass: "fa fa-trash" })]
+                      )
+                    ]
+                  )
+                ]
+              )
             }),
             0
           )
@@ -60080,9 +60149,37 @@ var staticRenderFns = [
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
     return _c("div", { staticClass: "status" }, [
-      _c("i", { staticClass: "fa fa-circle online text-white" }),
+      _c("i", { staticClass: "fa fa-circle online text-danger" }),
       _vm._v(" online\n                    ")
     ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "chat-num-messages" }, [
+      _c("small", [_vm._v(" last seen")])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "a",
+      {
+        staticClass: " dropdown-toggle",
+        attrs: {
+          href: "#",
+          role: "button",
+          id: "dropdownMenuLink",
+          "data-toggle": "dropdown",
+          "aria-haspopup": "true",
+          "aria-expanded": "false"
+        }
+      },
+      [_c("i", { staticClass: "fa fa-trash text-danger" })]
+    )
   }
 ]
 render._withStripped = true
