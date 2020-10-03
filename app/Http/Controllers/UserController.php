@@ -6,6 +6,8 @@ use App\Models\Message;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Events\MessageEvent;
+
 
 class UserController extends Controller
 {
@@ -65,6 +67,8 @@ class UserController extends Controller
                 'from' => Auth::id(),
                 'to' => $request->user_id,
             ]);
+            // return new MessageEvent($messages);
+            broadcast(new MessageEvent($messages));
             return response()->json($messages);
         }else{
             abort(404);

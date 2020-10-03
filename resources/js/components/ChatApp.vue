@@ -23,8 +23,7 @@
         </div>
         
         <div class="chat">
-            
-        
+
             <div class="chat-header clearfix ">
                 <img src="#" alt="avatar" style="border-radius:50%; background-color: grey; border: 3px solid pink;"/>
                 <div class="chat-about">
@@ -74,8 +73,14 @@
 
 <script>
 import Axios from 'axios';
+
 export default {
     mounted(){
+        Echo.private(`chat.${authuser.id}`)
+        .listen('MessageEvent', (e) => {
+            //Select user and dispatch message to.
+            this.selectUser(e.message.from);
+        });
         this.$store.dispatch('userList');
     },
     data(){
