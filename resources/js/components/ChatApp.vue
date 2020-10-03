@@ -119,7 +119,6 @@ export default {
                     this.selectUser(this.userMessage.user.id)
                 })
                  this.message = '';
-               
            }
        },
 
