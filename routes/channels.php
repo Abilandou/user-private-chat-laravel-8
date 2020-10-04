@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,4 +21,12 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('chat.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
     // return true;
+});
+
+Broadcast::channel('typingevent', function($user){
+    return Auth::check();
+});
+
+Broadcast::channel('liveuser', function($user){
+    return $user;
 });

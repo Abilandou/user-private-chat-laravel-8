@@ -11,14 +11,19 @@
                 <li @click.prevent="selectUser(user.id)" class="clearfix" v-for="user in userList" :key="user.id">
                     <img src="#" alt="avatar" class="ml-3"  style="border-radius:50%; background-color: grey; border: 3px solid pink;"/>
                     <div class="about">
-                        <div class="name" style="font-size: 12px; color:black;">{{ user.name }}</div>
-                        <div class="status">
-                        <i class="fa fa-circle online text-danger"></i> online
+                        <div class="name" style="font-size: 12px; color:black;">
+                            {{ user.name }}
+                        </div>
+                        <div class="status text-grey">
+                            <div v-if="onlineUser(user.id) || online.id==user.id ">
+                                <i class="fa fa-circle online text-success"></i>online
+                            </div>
+                            <div v-else>
+                                <i class="fa fa-circle online text-grey"></i>offline
+                            </div>
                         </div>
                     </div>
                 </li>
-                
-                
             </ul>
         </div>
         
@@ -28,7 +33,10 @@
                 <img src="#" alt="avatar" style="border-radius:50%; background-color: grey; border: 3px solid pink;"/>
                 <div class="chat-about">
                     <div class="chat-with" v-if="userMessage.user">{{ userMessage.user.name }}</div>
-                    <div class="chat-num-messages"> <small> last seen</small></div>
+                    <div class="chat-num-messages"> 
+                        <small> last seen</small><br>
+                        <small class="text-danger" v-if="typing">{{ typing }} typing...</small>
+                    </div>
                 </div>
                 <div>
                     <div class="dropdown show">
@@ -58,9 +66,13 @@
                 </ul>
                 
             </div> <!-- end chat-history -->
-
+                
+                <div class="ml-5" style="margin-bottom: -2rem;">
+                    <small class="text-danger" v-if="typing">{{ typing }} typing...</small>
+                </div>
             <div class="chat-message clearfix">
-                <textarea @keydown.enter="sendMessage" v-model="message" name="message-to-send" id="message-to-send" placeholder ="Type your message" rows="3"></textarea>
+                <textarea v-if="userMessage.user" @keydown="typingEvent(userMessage.user.id)" @keydown.enter="sendMessage" v-model="message" name="message-to-send" id="message-to-send" placeholder ="Type your message" rows="3"></textarea>
+                <textarea v-else disabled name="message-to-send" id="message-to-send" placeholder ="Please select a user to start a chat" rows="3"></textarea>
                         
                 <i class="fa fa-file-o"></i> &nbsp;&nbsp;&nbsp;
                 <i class="fa fa-file-image-o"></i>
@@ -73,21 +85,45 @@
 
 <script>
 import Axios from 'axios';
+import _ from 'lodash';
 
 export default {
     mounted(){
         Echo.private(`chat.${authuser.id}`)
         .listen('MessageEvent', (e) => {
-            //Select user and dispatch message to.
             this.selectUser(e.message.from);
         });
         this.$store.dispatch('userList');
+
+        Echo.private('typingevent')
+        .listenForWhisper('typing', (e) => {
+            // if(e.user.id == this.userMessage.user.id && e.user.id == authuser.id ){
+                this.typing = e.user.name;
+            // }
+            setTimeout(() => {
+                this.typing = '';
+            }, 3000);
+        })
+
+         Echo.join('liveuser')
+        .here((users) =>{
+            this.users = users
+        })
+         .joining((user) =>{
+            this.online = user;
+        })
+         .leaving((user) =>{
+            console.log(user.name+ " Went Offline")
+        });
     },
     data(){
         return {
             message:'',
+            typing:'',
+            users:[],
+            online:'',
         }
-    },
+    }, 
 
     computed: {
         userList() {
@@ -100,6 +136,7 @@ export default {
     },
   
    created(){
+      
 
    },
    methods: {
@@ -115,10 +152,12 @@ export default {
                    user_id: this.userMessage.user.id
                 })
                 .then(response => {
+                    // console.log(response.data);
                     //Reload user messages
                     this.selectUser(this.userMessage.user.id)
                 })
                  this.message = '';
+               
            }
        },
 
@@ -137,6 +176,19 @@ export default {
                this.selectUser(this.userMessage.user.id)
                console.log(response.data);
            })
+        },
+
+        typingEvent(userId){
+            Echo.private('typingevent')
+            .whisper('typing', {
+                'user': authuser,
+                'typing': this.message,
+                'userId': userId
+            });
+        },
+
+        onlineUser(userId){
+            return _.find(this.users, {'id':userId});
         }
    }
 }
@@ -170,5 +222,9 @@ export default {
     .d-flex-space {
         display: flex;
         justify-content: space-between;
+    }
+
+    .text-grey {
+        color: grey;
     }
 </style>

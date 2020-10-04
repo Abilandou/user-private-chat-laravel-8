@@ -1910,6 +1910,8 @@ module.exports = {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_1__);
 //
 //
 //
@@ -1983,20 +1985,50 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
     var _this = this;
 
     Echo["private"]("chat.".concat(authuser.id)).listen('MessageEvent', function (e) {
-      _this.selectUser(e.message.from); // console.log(e.message.message);
-
+      _this.selectUser(e.message.from);
     });
     this.$store.dispatch('userList');
+    Echo["private"]('typingevent').listenForWhisper('typing', function (e) {
+      // if(e.user.id == this.userMessage.user.id && e.user.id == authuser.id ){
+      _this.typing = e.user.name; // }
+
+      setTimeout(function () {
+        _this.typing = '';
+      }, 3000);
+    });
+    Echo.join('liveuser').here(function (users) {
+      _this.users = users;
+    }).joining(function (user) {
+      _this.online = user;
+    }).leaving(function (user) {
+      console.log(user.name + " Went Offline");
+    });
   },
   data: function data() {
     return {
-      message: ''
+      message: '',
+      typing: '',
+      users: [],
+      online: ''
     };
   },
   computed: {
@@ -2046,6 +2078,18 @@ __webpack_require__.r(__webpack_exports__);
         _this4.selectUser(_this4.userMessage.user.id);
 
         console.log(response.data);
+      });
+    },
+    typingEvent: function typingEvent(userId) {
+      Echo["private"]('typingevent').whisper('typing', {
+        'user': authuser,
+        'typing': this.message,
+        'userId': userId
+      });
+    },
+    onlineUser: function onlineUser(userId) {
+      return lodash__WEBPACK_IMPORTED_MODULE_1___default.a.find(this.users, {
+        'id': userId
       });
     }
   }
@@ -6510,7 +6554,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.my-message {\n    background: #ff4089;\n}\n.my-message:after {\n    border-bottom-color: #ff4089;\n    left: 10%;\n}\n.other-message {\n    background-color: rgb(231, 225, 225);\n    color: black !important;\n}\n.other-message:after {\n    border-bottom-color: rgb(231, 225, 225);\n    left: 90%;\n}\n.d-flex-column {\n    display: flex;\n    flex-direction: column;\n}\n.d-flex-space {\n    display: flex;\n    justify-content: space-between;\n}\n", ""]);
+exports.push([module.i, "\n.my-message {\n    background: #ff4089;\n}\n.my-message:after {\n    border-bottom-color: #ff4089;\n    left: 10%;\n}\n.other-message {\n    background-color: rgb(231, 225, 225);\n    color: black !important;\n}\n.other-message:after {\n    border-bottom-color: rgb(231, 225, 225);\n    left: 90%;\n}\n.d-flex-column {\n    display: flex;\n    flex-direction: column;\n}\n.d-flex-space {\n    display: flex;\n    justify-content: space-between;\n}\n.text-grey {\n    color: grey;\n}\n", ""]);
 
 // exports
 
@@ -66032,10 +66076,30 @@ var render = function() {
                     staticClass: "name",
                     staticStyle: { "font-size": "12px", color: "black" }
                   },
-                  [_vm._v(_vm._s(user.name))]
+                  [
+                    _vm._v(
+                      "\n                        " +
+                        _vm._s(user.name) +
+                        "\n                    "
+                    )
+                  ]
                 ),
                 _vm._v(" "),
-                _vm._m(1, true)
+                _c("div", { staticClass: "status text-grey" }, [
+                  _vm.onlineUser(user.id) || _vm.online.id == user.id
+                    ? _c("div", [
+                        _c("i", {
+                          staticClass: "fa fa-circle online text-success"
+                        }),
+                        _vm._v("online\n                        ")
+                      ])
+                    : _c("div", [
+                        _c("i", {
+                          staticClass: "fa fa-circle online text-grey"
+                        }),
+                        _vm._v("offline\n                        ")
+                      ])
+                ])
               ])
             ]
           )
@@ -66062,12 +66126,21 @@ var render = function() {
               ])
             : _vm._e(),
           _vm._v(" "),
-          _vm._m(2)
+          _c("div", { staticClass: "chat-num-messages" }, [
+            _c("small", [_vm._v(" last seen")]),
+            _c("br"),
+            _vm._v(" "),
+            _vm.typing
+              ? _c("small", { staticClass: "text-danger" }, [
+                  _vm._v(_vm._s(_vm.typing) + " typing...")
+                ])
+              : _vm._e()
+          ])
         ]),
         _vm._v(" "),
         _c("div", [
           _c("div", { staticClass: "dropdown show" }, [
-            _vm._m(3),
+            _vm._m(1),
             _vm._v(" "),
             _c(
               "div",
@@ -66161,41 +66234,68 @@ var render = function() {
         ]
       ),
       _vm._v(" "),
+      _c(
+        "div",
+        { staticClass: "ml-5", staticStyle: { "margin-bottom": "-2rem" } },
+        [
+          _vm.typing
+            ? _c("small", { staticClass: "text-danger" }, [
+                _vm._v(_vm._s(_vm.typing) + " typing...")
+              ])
+            : _vm._e()
+        ]
+      ),
+      _vm._v(" "),
       _c("div", { staticClass: "chat-message clearfix" }, [
-        _c("textarea", {
-          directives: [
-            {
-              name: "model",
-              rawName: "v-model",
-              value: _vm.message,
-              expression: "message"
-            }
-          ],
-          attrs: {
-            name: "message-to-send",
-            id: "message-to-send",
-            placeholder: "Type your message",
-            rows: "3"
-          },
-          domProps: { value: _vm.message },
-          on: {
-            keydown: function($event) {
-              if (
-                !$event.type.indexOf("key") &&
-                _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")
-              ) {
-                return null
+        _vm.userMessage.user
+          ? _c("textarea", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.message,
+                  expression: "message"
+                }
+              ],
+              attrs: {
+                name: "message-to-send",
+                id: "message-to-send",
+                placeholder: "Type your message",
+                rows: "3"
+              },
+              domProps: { value: _vm.message },
+              on: {
+                keydown: [
+                  function($event) {
+                    return _vm.typingEvent(_vm.userMessage.user.id)
+                  },
+                  function($event) {
+                    if (
+                      !$event.type.indexOf("key") &&
+                      _vm._k($event.keyCode, "enter", 13, $event.key, "Enter")
+                    ) {
+                      return null
+                    }
+                    return _vm.sendMessage($event)
+                  }
+                ],
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.message = $event.target.value
+                }
               }
-              return _vm.sendMessage($event)
-            },
-            input: function($event) {
-              if ($event.target.composing) {
-                return
+            })
+          : _c("textarea", {
+              attrs: {
+                disabled: "",
+                name: "message-to-send",
+                id: "message-to-send",
+                placeholder: "Please select a user to start a chat",
+                rows: "3"
               }
-              _vm.message = $event.target.value
-            }
-          }
-        }),
+            }),
         _vm._v(" "),
         _c("i", { staticClass: "fa fa-file-o" }),
         _vm._v("    \n            "),
@@ -66215,23 +66315,6 @@ var staticRenderFns = [
       _c("input", { attrs: { type: "text", placeholder: "search" } }),
       _vm._v(" "),
       _c("i", { staticClass: "fa fa-search" })
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "status" }, [
-      _c("i", { staticClass: "fa fa-circle online text-danger" }),
-      _vm._v(" online\n                    ")
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "chat-num-messages" }, [
-      _c("small", [_vm._v(" last seen")])
     ])
   },
   function() {
