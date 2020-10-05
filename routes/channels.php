@@ -20,7 +20,6 @@ use Illuminate\Support\Facades\Auth;
 
 Broadcast::channel('chat.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
-    // return true;
 });
 
 Broadcast::channel('typingevent', function($user){
