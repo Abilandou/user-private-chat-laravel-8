@@ -27,14 +27,14 @@ User private chat is a one to one user chat application, all users must be authe
 * User chat area
 
 ## Contributors
--Iyiakod Godlove Abilandou ([@Abilandou](#))
+-Iyiakod Godlove Abilandou ([@Abilandou](https://github.com/Abilandou))
 
 ## Developer/Development tools
 - Laravel 8.x
 - PHP >= 7.3
 - Bootstrap v4
 
-## Packages and third parties libraries
+## Packages and third party libraries
 - Laravel Echo
 - Websockets
 - Laravel Pusher
